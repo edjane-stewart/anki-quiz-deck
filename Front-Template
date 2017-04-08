@@ -1,0 +1,171 @@
+<span id='front'>
+
+<p class='question'>{{Question}} Choose one answer.</p>
+
+<p id='a'>a.&nbsp&nbsp&nbsp</p>
+<p id='b'>b.&nbsp&nbsp&nbsp</p>
+<p id='c'>c.&nbsp&nbsp&nbsp</p>
+<p id='d'>d.&nbsp&nbsp&nbsp</p>
+
+</span>
+
+<script>
+
+function getChoices() {
+  // *** Modify based on the number of choice fields in the card ***
+  return ["{{text:Answer1}}", "{{text:Distractor2}}", "{{text:Distractor3}}", "{{text:Distractor4}}"];
+}
+
+function getAnswers() {
+  // *** Modify based on the number of correct choice fields in the card ***
+  return ["{{text:Answer1}}"];
+}
+
+function getChoiceIds() {
+  // *** Modify based on the number of choice fields in the card ***
+  // *** If you want to change the display on cards from a, b, c, d to 1, 2, 3, 4 or A, B, C, D, then just modify the HTML
+  // *** ex: <p id='A'>A.</span></p> and return ['A','B','C','D'];
+  return ["a", "b", "c", "d"];
+}
+
+// ************************************ DO NOT MODIFY *******************************************
+function DummyStore() {
+  var instance;
+  return instance = 
+    { store: {}
+    , setItem: function (key, val) {
+        instance.store[key] = val;
+        return val;
+      }
+    , getItem: function (key, def) {
+        var val = instance.store[key]; 
+        return val == null ? def : val;
+      }
+    , tryItem: function (key, val) {
+        var curr = instance.getItem(key, undefined);
+        return curr == null ? instance.setItem(key, val) : curr;
+      }
+    , clear: function () {
+        this.store = {};
+      }
+    };
+}
+
+function PyStore(py) {
+  py.data = py.data || {};
+  var instance;
+  return instance = 
+    { setItem: function (key, val) {
+        py.data[key] = val;
+        return val;
+      }
+    , getItem: function (key, def) {
+        var val = py.data[key];
+        return val == null ? def : val;
+      }
+    , tryItem: function (key, val) {
+        var curr = instance.getItem(key, undefined);
+        return curr == null ? instance.setItem(key, val) : curr;
+      }
+    , clear: function () {
+        py.data = {};
+      }
+    };
+}
+
+function SessionStore(sessionStorage) {
+  var instance;
+  return instance = 
+    { setItem: function (key, val) {
+        sessionStorage.setItem(key, val);
+        return val;
+      }
+    , getItem: function (key, def) {
+        var val = sessionStorage.getItem(key);
+        return val == null ? def : val;
+      }
+    , tryItem: function (key, val) {
+        var curr = instance.getItem(key, undefined);
+        return curr == null ? instance.setItem(key, val) : curr;
+      }
+    , clear: function () {
+        sessionStorage.clear();
+      }
+    };
+}
+
+function persist(cb) {
+  window.setTimeout(function() {
+    // Determine whether to use Anki's Bridge object (Desktop) or sessionStorage (AnkiDroid) to store data across sides.
+    store = typeof(py) !== "undefined" 
+            ? PyStore(py)
+            : typeof(sessionStorage) !== "undefined" 
+              ? SessionStore(sessionStorage)
+              : DummyStore();
+
+    if (!document.getElementById('answer')) {
+      store.clear()
+    }
+
+    cb(store);
+  }, 0); //Execute after Anki has loaded its Bridge object.
+}
+
+function shuffleArray(array){
+  for (var i = array.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+  array.push("-"); // placeholder for the answer string
+}
+
+// ** Card logic
+function run(store) {
+  // get the choices field values from the card
+  var choices = getChoices();
+  shuffleArray(choices); // note: last entry in array holds answer string to be displayed
+
+  // choice identification
+  var id =  getChoiceIds();
+
+  // determine the choice id(s) for answer(s)
+  var answers = getAnswers();
+
+  // generate a string with choice id(s)
+  var answer_str = '';
+  for (i=0; i<choices.length-1; i++) {
+    // loop through the correct answers (depending on the card type there may be more than one correct answer)
+    for (j=0; j<answers.length; j++) {
+       if (choices[i] == answers[j])
+         answer_str = answer_str + id[i] + ", ";
+    }
+  }
+  // store answer string at the end of the choice array
+  answer_str = answer_str.slice(0, answer_str.length-2);
+  choices[choices.length-1] = answer_str;
+
+  // convert choices array to a JSON string to be stored
+  var json_str = JSON.stringify(choices);
+
+  // persist the choices order and correct answers
+  var json_data = store.tryItem("json_data", json_str);
+
+  // get the array back from storage (so data can be displayed on both sides of the card)
+  var stored_data = JSON.parse(json_data);
+
+  // modify the card output to display the randomized choices
+  if (document.getElementById("front")) {
+    for (i=0; i<stored_data.length-1; i++) {
+      document.getElementById(id[i]).innerHTML = document.getElementById(id[i]).innerHTML+ stored_data[i];
+    }
+  }
+  if (document.getElementById("back")) {
+    document.getElementById("bans").innerHTML = document.getElementById("bans").innerHTML.replace("%ANSWER%", stored_data[stored_data.length-1]);
+  }
+}
+
+persist(run);
+
+</script>
