@@ -17,4 +17,5 @@ This deck contains several cards designed to support questions with:
 
 <p>This deck was tested with Anki desktop (Windows / MAC) and AnkiDroid. However, it was not tested with AnkiMobile (for iPAD).</p>
 
-<p>Replaced persistence with [Simon Lammer's Persistence](https://github.com/SimonLammer/anki-persistence)</p>
+<p>Replaced persistence. </p>
+See [Simon Lammer's Persistence](https://github.com/SimonLammer/anki-persistence)
