@@ -17,4 +17,4 @@ This deck contains several cards designed to support questions with:
 
 <p>This deck was tested with Anki desktop (Windows / MAC) and AnkiDroid. However, it was not tested with AnkiMobile (for iPAD).</p>
 
-<p>Many thanks to RunasSudo @ https://www.yingtongli.me/blog/2015/03/15/random-question-generator-on-anki-using.html for sharing his code to persist data between front and back of an Anki card and for PaperClipBadger @ https://gist.github.com/PaperclipBadger/af3c3262ef1142804f9e9f18ae472c7e for sharing persist method rearranging and allowing me to make the card templates easier to use.</p>
+<p>Replaced persistence. See <a href="https://github.com/SimonLammer/anki-persistence">Simon Lammer's Persistence</a></p>
